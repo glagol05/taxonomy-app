@@ -1,18 +1,28 @@
 package scenes;
 
 import controllers.Navigation;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 
 public class MainScene {
     
     public static Scene create(Navigation navigation) {
         BorderPane root = new BorderPane();
         Scene mainScene = new Scene(root, 800, 600);
-
-        HBox bottomBar = new HBox();
+        HBox bottomBar = new HBox(10);
+        bottomBar.setPrefHeight(50);
+        bottomBar.setMinWidth(400);
+        bottomBar.setMaxWidth(400);
+        bottomBar.setAlignment(Pos.CENTER);
+        bottomBar.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
 
         Button addEntry = new Button("add");
         addEntry.setOnAction(e -> navigation.showAddScene());
@@ -25,7 +35,7 @@ public class MainScene {
 
         Button home = new Button("home");
         home.setOnAction(e -> navigation.showMainScene());
-        
+
         bottomBar.getChildren().addAll(addEntry, viewEntries, findEntry, home);
         root.setBottom(bottomBar);
 
