@@ -1,8 +1,10 @@
 package controllers;
 
 import javafx.stage.Stage;
+import scenes.AddScene;
+import scenes.FindScene;
 import scenes.MainScene;
-import scenes.SecondScene;
+import scenes.ViewScene;
 
 public class Navigation {
 
@@ -16,8 +18,18 @@ public class Navigation {
         stage.setScene(MainScene.create(this));
     }
 
-    public void showSecondScene() {
-        stage.setScene(SecondScene.create(this));
+    public void showAddScene() {
+        stage.setScene(AddScene.create(this));
     }
+
+    public void showViewScene() {
+        stage.setScene(ViewScene.create(this));
+    }
+
+    public void showFindScene() {
+        stage.setScene(FindScene.create(this));
+    }
+
+
     
 }
