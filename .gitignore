@@ -1,0 +1,10 @@
+# Environment variables
+dot.env
+.env
+
+# Gradle
+.gradle/
+build/
+
+# Java
+*.class
