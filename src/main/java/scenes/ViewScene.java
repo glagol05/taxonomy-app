@@ -1,5 +1,9 @@
 package scenes;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import controllers.Navigation;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -14,9 +18,21 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
+import controllers.Queries;
+import models.Creature;
+
 public class ViewScene {
 
     public static Scene create(Navigation navigation) {
+        Queries queries = new Queries();
+        List <Creature> creatures;
+        try {
+            creatures = queries.getAllInDomain("Eukaryota");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            creatures = List.of();
+        }
+
         BorderPane root = new BorderPane();
         Scene viewScene = new Scene(root, 800, 600);
         ListView<Text> animalList = new ListView<>();
@@ -40,7 +56,7 @@ public class ViewScene {
         home.setOnAction(e -> navigation.showMainScene());
         bottomBar.getChildren().addAll(addEntry, viewEntries, findEntry, home);
 
-        Text sampleText = new Text("Hiyyyaa test");
+        Text sampleText = new Text(creatures.get(0).species());
         animalList.getItems().addAll(sampleText);
         root.setRight(animalList);
         root.setBottom(bottomBar);
