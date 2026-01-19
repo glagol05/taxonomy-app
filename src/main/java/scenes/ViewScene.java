@@ -1,5 +1,6 @@
 package scenes;
 
+import java.lang.reflect.Array;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -23,6 +25,11 @@ import models.Creature;
 
 public class ViewScene {
 
+    String currentRank;
+    String previousRank;
+
+    String[] domainArray = {"Bacteria", "Archea", "Eukaryota"};
+    
     public static Scene create(Navigation navigation) {
         Queries queries = new Queries();
         List <Creature> creatures;
@@ -36,6 +43,11 @@ public class ViewScene {
         BorderPane root = new BorderPane();
         Scene viewScene = new Scene(root, 800, 600);
         ListView<Text> animalList = new ListView<>();
+        FlowPane centerPane = new FlowPane();
+        centerPane.setHgap(10);
+        centerPane.setVgap(10);
+        centerPane.setAlignment(Pos.CENTER);
+        centerPane.setPrefWrapLength(600);
 
         HBox bottomBar = new HBox(10);
         bottomBar.setPrefHeight(50);
