@@ -24,6 +24,20 @@ private static final Dotenv dotenv = Dotenv.configure()
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
+    private Creature mapCreature(ResultSet rs) throws SQLException {
+        return new Creature(
+            rs.getInt("id"),
+            rs.getString("domain"),
+            rs.getString("kingdom"),
+            rs.getString("phylum"),
+            rs.getString("class_name"),
+            rs.getString("order"),
+            rs.getString("family"),
+            rs.getString("genus"),
+            rs.getString("species")
+        );
+    }
+
     public void addEntry(String domain, String kingdom, String phylum, String clazz, String order, String family, String genus, String species) throws SQLException {
         String sql = """
                 INSERT INTO creatures
@@ -47,86 +61,38 @@ private static final Dotenv dotenv = Dotenv.configure()
                 }
     }
 
-    public List<Creature> getAllInDomain(String domain) throws SQLException {
-        String sql = "SELECT * FROM creatures WHERE domain = ?";
+    public List<Creature> getAllCreatures() throws SQLException {
+        String sql = "SELECT * FROM creatures";
         List<Creature> results = new ArrayList<>();
 
         try (Connection conn = Queries.connect();
             PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, domain);
-
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        results.add(new Creature(
-                            rs.getInt("id"),
-                            rs.getString("domain"),
-                            rs.getString("kingdom"),
-                            rs.getString("phylum"),
-                            rs.getString("class_name"),
-                            rs.getString("order"),
-                            rs.getString("family"),
-                            rs.getString("genus"),
-                            rs.getString("species")
-                        ));
+                        results.add(mapCreature(rs));
                     }
                 }
             }
-            
+
         return results;
     }
 
-    public void getAllKingdom(String kingdom) throws SQLException {
-        String sql = "SELECT * FROM creatures WHERE kingdom = ?";
+    public List<Creature> getAllInSpecifics(String rank, String name) throws SQLException {
+        String sql = "SELECT * FROM creatures WHERE " + rank + " = ?";
 
-        try (Connection conn = Queries.connect();
+        List<Creature> results = new ArrayList<>();
+
+        try(Connection conn = Queries.connect();
             PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(2, kingdom);
+                ps.setString(1, name);
+
+                try(ResultSet rs = ps.executeQuery()) {
+                    while(rs.next()) {
+                        results.add(mapCreature(rs));
+                    }
+                }
             }
+        
+        return results;
     }
-
-    public void getAllPhylum(String phylum) throws SQLException {
-        String sql = "SELECT * FROM creatures WHERE phylum = ?";
-
-        try (Connection conn = Queries.connect();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(3, phylum);
-            }
-    }
-
-    public void getAllClass(String clazz) throws SQLException {
-        String sql = "SELECT * FROM creatures WHERE class_name = ?";
-
-        try (Connection conn = Queries.connect();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(4, clazz);
-            }
-    }
-
-    public void getAllOrder(String order) throws SQLException {
-        String sql = "SELECT * FROM creatures WHERE \"order\" = ?";
-
-        try (Connection conn = Queries.connect();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(5, order);
-            }
-    }
-
-    public void getAllFamily(String family) throws SQLException {
-        String sql = "SELECT * FROM creatures WHERE family = ?";
-
-        try (Connection conn = Queries.connect();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(6, family);
-            }
-    }
-
-    public void getAllGenus(String domain) throws SQLException {
-        String sql = "SELECT * FROM creatures WHERE domain = ?";
-
-        try (Connection conn = Queries.connect();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, domain);
-            }
-    }
-    
 }

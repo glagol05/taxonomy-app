@@ -27,7 +27,7 @@ public class ViewScene {
         Queries queries = new Queries();
         List <Creature> creatures;
         try {
-            creatures = queries.getAllInDomain("Eukaryota");
+            creatures = queries.getAllInSpecifics("genus", "Canis");
         } catch (SQLException e) {
             e.printStackTrace();
             creatures = List.of();
@@ -36,6 +36,7 @@ public class ViewScene {
         BorderPane root = new BorderPane();
         Scene viewScene = new Scene(root, 800, 600);
         ListView<Text> animalList = new ListView<>();
+
         HBox bottomBar = new HBox(10);
         bottomBar.setPrefHeight(50);
         bottomBar.setMinWidth(600);
@@ -56,8 +57,11 @@ public class ViewScene {
         home.setOnAction(e -> navigation.showMainScene());
         bottomBar.getChildren().addAll(addEntry, viewEntries, findEntry, home);
 
-        Text sampleText = new Text(creatures.get(0).species());
-        animalList.getItems().addAll(sampleText);
+        for(int i = 0; i < creatures.size(); i++) {
+            Text sampleText = new Text(creatures.get(i).species());
+            animalList.getItems().add(sampleText);
+        }
+
         root.setRight(animalList);
         root.setBottom(bottomBar);
         BorderPane.setAlignment(bottomBar, Pos.CENTER);
