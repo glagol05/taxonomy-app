@@ -66,7 +66,7 @@ public class AddScene {
             tf.setMaxWidth(300);
         }
 
-        inputBox.getChildren().addAll(domainInput, kingdomInput, phylumInput, classInput, orderInput, familyInput, genusInput, speciesInput);
+        inputBox.getChildren().addAll(domainInput, kingdomInput, phylumInput, classInput, orderInput, familyInput, genusInput, speciesInput, addCreature);
 
         addCreature.setOnAction(e -> {
             Queries queries = new Queries();

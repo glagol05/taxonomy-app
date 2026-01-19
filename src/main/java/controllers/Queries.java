@@ -8,7 +8,9 @@ import java.sql.SQLException;
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class Queries {
-    private static final Dotenv dotenv = Dotenv.load();
+private static final Dotenv dotenv = Dotenv.configure()
+                                            .filename("dot.env")
+                                            .load();
 
     private static final String URL = dotenv.get("DB_URL");
     private static final String USER = dotenv.get("DB_USER");
