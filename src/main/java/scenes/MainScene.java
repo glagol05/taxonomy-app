@@ -19,8 +19,8 @@ public class MainScene {
         Scene mainScene = new Scene(root, 800, 600);
         HBox bottomBar = new HBox(10);
         bottomBar.setPrefHeight(50);
-        bottomBar.setMinWidth(400);
-        bottomBar.setMaxWidth(400);
+        bottomBar.setMinWidth(600);
+        bottomBar.setMaxWidth(600);
         bottomBar.setAlignment(Pos.CENTER);
         bottomBar.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
 
@@ -38,6 +38,7 @@ public class MainScene {
 
         bottomBar.getChildren().addAll(addEntry, viewEntries, findEntry, home);
         root.setBottom(bottomBar);
+        BorderPane.setAlignment(bottomBar, Pos.CENTER);
 
         return mainScene;
     }
