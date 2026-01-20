@@ -7,9 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import models.Creature;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import models.Creature;
 
 public class Queries {
 private static final Dotenv dotenv = Dotenv.configure()
@@ -31,7 +31,7 @@ private static final Dotenv dotenv = Dotenv.configure()
             rs.getString("kingdom"),
             rs.getString("phylum"),
             rs.getString("class_name"),
-            rs.getString("order"),
+            rs.getString("order_name"),
             rs.getString("family"),
             rs.getString("genus"),
             rs.getString("species")
@@ -41,7 +41,7 @@ private static final Dotenv dotenv = Dotenv.configure()
     public void addEntry(String domain, String kingdom, String phylum, String clazz, String order, String family, String genus, String species) throws SQLException {
         String sql = """
                 INSERT INTO creatures
-                (domain, kingdom, phylum, class_name, "order", family, genus, species)
+                (domain, kingdom, phylum, class_name, order_name, family, genus, species)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
@@ -93,6 +93,21 @@ private static final Dotenv dotenv = Dotenv.configure()
                 }
             }
         
+        return results;
+    }
+
+    public List <String> getDistinctValuesInRank(String rank) throws SQLException {
+        String sql = "SELECT DISTINCT " + rank + " FROM creatures";
+        List <String> results = new ArrayList<>();
+
+        try(Connection conn = Queries.connect();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery()) {
+
+                while(rs.next()) {
+                    results.add(rs.getString(1));
+                }
+            }
         return results;
     }
 }
