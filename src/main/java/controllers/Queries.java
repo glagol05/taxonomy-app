@@ -110,4 +110,37 @@ private static final Dotenv dotenv = Dotenv.configure()
             }
         return results;
     }
+
+    public List<String> getDistinctValuesFiltered(String nextRank, String[] rankArray, String[] selectedValues, int currentRank) throws SQLException {
+        StringBuilder sql = new StringBuilder(
+            "SELECT DISTINCT " + nextRank + " FROM creatures WHERE 1=1"
+        );
+
+        for (int i = 0; i <= currentRank; i++) {
+            if (selectedValues[i] != null) {
+                sql.append(" AND ").append(rankArray[i]).append(" = ?");
+            }
+        }
+
+        List<String> results = new ArrayList<>();
+
+        try (Connection conn = connect();
+            PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            int paramIndex = 1;
+            for (int i = 0; i <= currentRank; i++) {
+                if (selectedValues[i] != null) {
+                    ps.setString(paramIndex++, selectedValues[i]);
+                }
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    results.add(rs.getString(1));
+                }
+            }
+        }
+
+        return results;
+    }
 }

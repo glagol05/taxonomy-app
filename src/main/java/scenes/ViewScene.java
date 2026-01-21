@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -29,11 +30,12 @@ public class ViewScene {
     List <String> currentRankList;
 
     String[] rankArray = {"domain", "kingdom", "phylum", "class_name", "order_name", "family", "genus", "species"};
+    String[] selectedValues = new String[rankArray.length];
 
     public void creatureButton(BorderPane root, String rank, String mode) {
         Queries queries = new Queries();
         try {
-            currentRankList = queries.getDistinctValuesInRank(rank);
+            currentRankList = queries.getDistinctValuesFiltered(rank, rankArray, selectedValues, currentRank - 1);
         } catch (SQLException e) {
             e.printStackTrace();
             currentRankList = List.of();
@@ -64,8 +66,9 @@ public class ViewScene {
             Button backButton = new Button("Return");
             int backRankIndex = currentRank - 1;
             backButton.setOnAction(e -> {
-                currentRank = backRankIndex;
-                creatureButton(root, rankArray[backRankIndex], "backward");
+                selectedValues[currentRank] = null;
+                currentRank--;
+                creatureButton(root, rankArray[currentRank], "backward");
             });
             topBar.getChildren().add(backButton);
         }
@@ -83,13 +86,17 @@ public class ViewScene {
             newButton.setPrefSize(80, 80);
             newButton.setMaxSize(80, 80);
 
+            newButton.setContentDisplay(ContentDisplay.BOTTOM);
+            newButton.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: darkblue;");
+
             pane.getChildren().add(newButton);
 
             if(currentRank < rankArray.length - 1) {
                 int nextRankIndex = currentRank + 1;
                 newButton.setOnAction(e -> {
-                    currentRank = nextRankIndex;
-                    creatureButton(root, rankArray[nextRankIndex], "forward");
+                    selectedValues[currentRank] = item;
+                    currentRank++;
+                    creatureButton(root, rankArray[currentRank], "forward");
                 });
             }
         }
