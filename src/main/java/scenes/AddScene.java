@@ -128,12 +128,6 @@ public class AddScene {
             String genus   = taxObj.optString("genus");
             String species = taxObj.optString("species");
             String commonName = taxObj.optString("vernacularName");
-            System.out.println(description);
-
-            String raw = infoFetch.fetchDescription("Felis catus");
-            System.out.println(raw);
-
-
 
             try {
                 int creatureId = queries.addEntry(

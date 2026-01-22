@@ -9,5 +9,7 @@ public record Creature (
     String order,
     String family,
     String genus,
-    String species
+    String species,
+    String common_name,
+    String description
 ) {}

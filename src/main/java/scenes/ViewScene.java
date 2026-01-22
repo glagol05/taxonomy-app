@@ -27,6 +27,7 @@ import models.CreatureImage;
 
 public class ViewScene {
 
+    private BorderPane root;
     int currentRank = 0;
     String previousRank;
     List <Creature> currentCreatures;
@@ -36,7 +37,7 @@ public class ViewScene {
     String[] rankArray = {"domain", "kingdom", "phylum", "class_name", "order_name", "family", "genus", "species"};
     String[] selectedValues = new String[rankArray.length];
 
-    public void creatureButton(BorderPane root, String rank, String mode) {
+    public void creatureButton(BorderPane root, String rank, String mode, Navigation navigation) {
         Queries queries = new Queries();
         try {
             currentRankList = queries.getDistinctValuesFiltered(rankArray[currentRank], rankArray, selectedValues, currentRank - 1);
@@ -73,7 +74,7 @@ public class ViewScene {
             backButton.setOnAction(e -> {
                 selectedValues[currentRank] = null;
                 currentRank--;
-                creatureButton(root, rankArray[currentRank], "backward");
+                creatureButton(root, rankArray[currentRank], "backward", navigation);
             });
             topBar.getChildren().add(backButton);
         }
@@ -139,12 +140,14 @@ public class ViewScene {
                 newButton.setOnAction(e -> {
                     selectedValues[currentRank] = item;
                     currentRank++;
-                    creatureButton(root, rankArray[currentRank], "forward");
+                    creatureButton(root, rankArray[currentRank], "forward", navigation);
                 });
-            } else {
-                Navigation navigation = new Navigation(null);
+            }
+
+            if(currentRank == rankArray.length - 1) {
+                String selectedSpecies = item;
                 newButton.setOnAction(e -> {
-                    navigation.
+                    navigation.showEntryScene(selectedSpecies, this);
                 });
             }
         }
@@ -152,32 +155,27 @@ public class ViewScene {
 
     String[] domainArray = {"Bacteria", "Archea", "Eukaryota"};
     
-    public static Scene create(Navigation navigation) {
-        ViewScene viewSceneController = new ViewScene();
-        Queries queries = new Queries();
-        List <Creature> creatures;
-        try {
-            creatures = queries.getAllInSpecifics("genus", "Canis");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            creatures = List.of();
+    public Scene create(Navigation navigation) {
+        if (root != null && root.getScene() != null) {
+            return root.getScene();
         }
 
-        BorderPane root = new BorderPane();
+        this.root = new BorderPane();
+        BorderPane root = this.root;
+
         HBox topBar = new HBox();
         topBar.setPadding(new Insets(10));
         topBar.setAlignment(Pos.TOP_LEFT);
         topBar.setMinHeight(50);
         root.setTop(topBar);
-        
-        Scene viewScene = new Scene(root, 1200, 800);
-        ListView<Text> animalList = new ListView<>();
+
         FlowPane centerPane = new FlowPane();
         centerPane.setHgap(10);
         centerPane.setVgap(10);
         centerPane.setAlignment(Pos.TOP_LEFT);
         centerPane.setPadding(new Insets(10, 0, 0, 10));
         centerPane.setPrefWrapLength(600);
+        root.setCenter(centerPane);
 
         HBox bottomBar = new HBox(10);
         bottomBar.setPrefHeight(50);
@@ -199,18 +197,31 @@ public class ViewScene {
         home.setOnAction(e -> navigation.showMainScene());
         bottomBar.getChildren().addAll(addEntry, viewEntries, findEntry, home);
 
-        for(int i = 0; i < creatures.size(); i++) {
-            Text sampleText = new Text(creatures.get(i).species());
-            animalList.getItems().add(sampleText);
-        }
-
-        root.setRight(animalList);
         root.setBottom(bottomBar);
-        root.setCenter(centerPane);
         BorderPane.setAlignment(bottomBar, Pos.CENTER);
 
-        viewSceneController.creatureButton(root, "domain", "forward");
+        Queries queries = new Queries();
+        List<Creature> creatures;
+        try {
+            creatures = queries.getAllInSpecifics("genus", "Canis");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            creatures = List.of();
+        }
 
-        return viewScene;
+        ListView<Text> animalList = new ListView<>();
+        for (Creature c : creatures) {
+            animalList.getItems().add(new Text(c.species()));
+        }
+        root.setRight(animalList);
+
+        currentRank = 0;
+        this.creatureButton(root, "domain", "stay", navigation);
+
+        return new Scene(root, 1200, 800);
     }
+
+    public BorderPane getRoot() {
+    return root;
+}
 }

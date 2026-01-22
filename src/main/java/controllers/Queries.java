@@ -35,7 +35,9 @@ private static final Dotenv dotenv = Dotenv.configure()
             rs.getString("order_name"),
             rs.getString("family"),
             rs.getString("genus"),
-            rs.getString("species")
+            rs.getString("species"),
+            rs.getString("common_name"),
+            rs.getString("description")
         );
     }
 
@@ -66,6 +68,34 @@ private static final Dotenv dotenv = Dotenv.configure()
                     }
                 }
                 throw new SQLException("Failed to insert creature");
+    }
+
+    public Creature getCreature(String species) throws SQLException {
+        String sql = "SELECT * FROM creatures WHERE species = ?";
+
+        try (Connection conn = Queries.connect();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, species);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Creature(
+                        rs.getInt("id"),
+                        rs.getString("domain"),
+                        rs.getString("kingdom"),
+                        rs.getString("phylum"),
+                        rs.getString("class_name"),
+                        rs.getString("order_name"),
+                        rs.getString("family"),
+                        rs.getString("genus"),
+                        rs.getString("species"),
+                        rs.getString("common_name"),
+                        rs.getString("description")
+                    );
+                }
+            }
+        }
+        return null;
     }
 
     public List<Creature> getAllCreatures() throws SQLException {
