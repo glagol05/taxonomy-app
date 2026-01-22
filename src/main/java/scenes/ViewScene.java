@@ -1,5 +1,6 @@
 package scenes;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -94,9 +95,10 @@ public class ViewScene {
                     if (!creature.isEmpty()) {
                         int creature_id = creature.get(0).id();
                         CreatureImage stdImage = queries.getStandardImage(creature_id);
-
-                        if (stdImage != null) {
+                        if (stdImage != null && stdImage.path() != null && !stdImage.path().isBlank()) {
                             imgPath = stdImage.path();
+                        } else {
+                            imgPath = "no_image.png";
                         }
                     }
                 } catch (SQLException ex) {
@@ -104,7 +106,16 @@ public class ViewScene {
                 }
             }
 
-            Image buttonImg = new Image(new java.io.File(imgPath).toURI().toString(), 60, 60, true, true);
+            Image buttonImg;
+            try {
+                File f = new File(imgPath);
+                if (!f.exists()) {
+                    f = new File("no_image.png"); // fallback
+                }
+                buttonImg = new Image(f.toURI().toString(), 60, 60, true, true);
+            } catch (Exception e) {
+                buttonImg = new Image(new File("no_image.png").toURI().toString(), 60, 60, true, true);
+            }
             ImageView iv = new ImageView(buttonImg);
             iv.setFitWidth(60);
             iv.setFitHeight(60);

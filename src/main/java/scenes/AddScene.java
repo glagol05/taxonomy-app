@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import controllers.ImageFetcher;
 import controllers.Navigation;
 import controllers.Queries;
 import javafx.geometry.Insets;
@@ -108,9 +109,8 @@ public class AddScene {
 
         addCreature.setOnAction(e -> {
             Queries queries = new Queries();
-
             try {
-                int creature_id = queries.addEntry(
+                int creatureId = queries.addEntry(
                     domainInput.getText(),
                     kingdomInput.getText(),
                     phylumInput.getText(),
@@ -121,14 +121,24 @@ public class AddScene {
                     speciesInput.getText()
                 );
 
-            for (int i = 0; i < selectedImages.size(); i++) {
-                File f = selectedImages.get(i);
-                queries.addUserImage(creature_id, f.getAbsolutePath(), "current_user");
-            }
+                String speciesFullName = genusInput.getText() + " " + speciesInput.getText();
+                String localImagePath = ImageFetcher.fetchAndSaveImage(speciesFullName);
+
+                if (localImagePath != null) {
+                    queries.upsertStandardImage(creatureId, localImagePath, "Wikimedia Commons", "CC BY-SA");
+                    System.out.println("Standard image saved locally: " + localImagePath);
+                } else {
+                    System.out.println("No standard image found for " + speciesFullName);
+                }
+
+                for (File f : selectedImages) {
+                    queries.addUserImage(creatureId, f.getAbsolutePath(), "current_user");
+                }
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
         });
+
 
         Button addEntry = new Button("add");
         addEntry.setOnAction(e -> navigation.showAddScene());
