@@ -2,6 +2,7 @@ package controllers;
 
 import javafx.stage.Stage;
 import scenes.AddScene;
+import scenes.EntryScene;
 import scenes.FindScene;
 import scenes.MainScene;
 import scenes.ViewScene;
@@ -30,6 +31,7 @@ public class Navigation {
         stage.setScene(FindScene.create(this));
     }
 
-
-    
+    public void showEntryScene(int creature_id) {
+        stage.setScene(EntryScene.create(this));
+    }
 }

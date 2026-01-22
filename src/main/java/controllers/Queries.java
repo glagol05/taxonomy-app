@@ -39,11 +39,11 @@ private static final Dotenv dotenv = Dotenv.configure()
         );
     }
 
-    public int addEntry(String domain, String kingdom, String phylum, String clazz, String order, String family, String genus, String species) throws SQLException {
+    public int addEntry(String domain, String kingdom, String phylum, String clazz, String order, String family, String genus, String species, String common_name, String description) throws SQLException {
         String sql = """
                 INSERT INTO creatures
-                (domain, kingdom, phylum, class_name, order_name, family, genus, species)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                (domain, kingdom, phylum, class_name, order_name, family, genus, species, common_name, description)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 RETURNING id
                 """;
 
@@ -58,6 +58,8 @@ private static final Dotenv dotenv = Dotenv.configure()
                     ps.setString(6, family);
                     ps.setString(7, genus);
                     ps.setString(8, species);
+                    ps.setString(9, common_name);
+                    ps.setString(10, description);
 
                     try (ResultSet rs = ps.executeQuery()) {
                         if (rs.next()) return rs.getInt(1);

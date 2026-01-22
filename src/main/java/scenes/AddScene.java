@@ -5,7 +5,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONObject;
+
 import controllers.ImageFetcher;
+import controllers.InfoFetcher;
 import controllers.Navigation;
 import controllers.Queries;
 import javafx.geometry.Insets;
@@ -33,11 +36,11 @@ public class AddScene {
         imagePreviewBox.setAlignment(Pos.CENTER);
 
         BorderPane root = new BorderPane();
-        Scene addScene = new Scene(root, 800, 600);
+        Scene addScene = new Scene(root, 1200, 800);
         HBox bottomBar = new HBox(10);
         bottomBar.setPrefHeight(50);
-        bottomBar.setMinWidth(600);
-        bottomBar.setMaxWidth(600);
+        bottomBar.setMinWidth(800);
+        bottomBar.setMaxWidth(800);
         bottomBar.setAlignment(Pos.CENTER);
         bottomBar.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
 
@@ -61,14 +64,14 @@ public class AddScene {
 
         Button addImagesBtn = new Button("Add Images (max 5)");
 
-        domainInput.setPromptText("Domain");
+        /*domainInput.setPromptText("Domain");
         kingdomInput.setPromptText("Kingdom");
         phylumInput.setPromptText("Phylum");
         classInput.setPromptText("Class");
         orderInput.setPromptText("Order");
         familyInput.setPromptText("Family");
-        genusInput.setPromptText("Genus");
-        speciesInput.setPromptText("Species");
+        genusInput.setPromptText("Genus");*/
+        speciesInput.setPromptText("Species name");
 
         TextField[] fields = {
             domainInput, kingdomInput, phylumInput, classInput,
@@ -79,7 +82,7 @@ public class AddScene {
             tf.setMaxWidth(300);
         }
 
-        inputBox.getChildren().addAll(domainInput, kingdomInput, phylumInput, classInput, orderInput, familyInput, genusInput, speciesInput, addImagesBtn, imagePreviewBox, addCreature);
+        inputBox.getChildren().addAll(speciesInput, addImagesBtn, imagePreviewBox, addCreature);
 
         addImagesBtn.setOnAction(e -> {
             if (selectedImages.size() >= 5) return;
@@ -109,16 +112,41 @@ public class AddScene {
 
         addCreature.setOnAction(e -> {
             Queries queries = new Queries();
+            InfoFetcher infoFetch = new InfoFetcher();
+
+            String taxInfo = infoFetch.fetchInfo(speciesInput.getText());
+            if (taxInfo == null) return;
+            JSONObject taxObj = new JSONObject(taxInfo);
+
+            String description = infoFetch.fetchDescription(speciesInput.getText());
+
+            String kingdom = taxObj.optString("kingdom");
+            String phylum  = taxObj.optString("phylum");
+            String clazz   = taxObj.optString("class");
+            String order   = taxObj.optString("order");
+            String family  = taxObj.optString("family");
+            String genus   = taxObj.optString("genus");
+            String species = taxObj.optString("species");
+            String commonName = taxObj.optString("vernacularName");
+            System.out.println(description);
+
+            String raw = infoFetch.fetchDescription("Felis catus");
+            System.out.println(raw);
+
+
+
             try {
                 int creatureId = queries.addEntry(
-                    domainInput.getText(),
-                    kingdomInput.getText(),
-                    phylumInput.getText(),
-                    classInput.getText(),
-                    orderInput.getText(),
-                    familyInput.getText(),
-                    genusInput.getText(),
-                    speciesInput.getText()
+                    "Eukaryota",
+                    kingdom,
+                    phylum,
+                    clazz,
+                    order,
+                    family,
+                    genus,
+                    species,
+                    commonName,
+                    description
                 );
 
                 String speciesFullName = genusInput.getText() + " " + speciesInput.getText();

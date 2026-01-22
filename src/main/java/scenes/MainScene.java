@@ -16,11 +16,11 @@ public class MainScene {
     
     public static Scene create(Navigation navigation) {
         BorderPane root = new BorderPane();
-        Scene mainScene = new Scene(root, 800, 600);
+        Scene mainScene = new Scene(root, 1200, 800);
         HBox bottomBar = new HBox(10);
         bottomBar.setPrefHeight(50);
-        bottomBar.setMinWidth(600);
-        bottomBar.setMaxWidth(600);
+        bottomBar.setMinWidth(800);
+        bottomBar.setMaxWidth(800);
         bottomBar.setAlignment(Pos.CENTER);
         bottomBar.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
 

@@ -110,26 +110,26 @@ public class ViewScene {
             try {
                 File f = new File(imgPath);
                 if (!f.exists()) {
-                    f = new File("no_image.png"); // fallback
+                    f = new File("no_image.png");
                 }
-                buttonImg = new Image(f.toURI().toString(), 60, 60, true, true);
+                buttonImg = new Image(f.toURI().toString(), 100, 100, true, true);
             } catch (Exception e) {
-                buttonImg = new Image(new File("no_image.png").toURI().toString(), 60, 60, true, true);
+                buttonImg = new Image(new File("no_image.png").toURI().toString(), 100, 100, true, true);
             }
             ImageView iv = new ImageView(buttonImg);
-            iv.setFitWidth(60);
-            iv.setFitHeight(60);
+            iv.setFitWidth(100);
+            iv.setFitHeight(100);
             iv.setPreserveRatio(true);
             iv.setSmooth(true);
 
             Button newButton = new Button(item);
 
             newButton.setGraphic(iv);
-            newButton.setMinSize(100, 100);
-            newButton.setPrefSize(100, 100);
-            newButton.setMaxSize(100, 100);
+            newButton.setMinSize(140, 140);
+            newButton.setPrefSize(140, 140);
+            newButton.setMaxSize(140, 140);
 
-            newButton.setContentDisplay(ContentDisplay.BOTTOM);
+            newButton.setContentDisplay(ContentDisplay.TOP);
             newButton.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: darkblue;");
 
             pane.getChildren().add(newButton);
@@ -140,6 +140,11 @@ public class ViewScene {
                     selectedValues[currentRank] = item;
                     currentRank++;
                     creatureButton(root, rankArray[currentRank], "forward");
+                });
+            } else {
+                Navigation navigation = new Navigation(null);
+                newButton.setOnAction(e -> {
+                    navigation.
                 });
             }
         }
@@ -165,7 +170,7 @@ public class ViewScene {
         topBar.setMinHeight(50);
         root.setTop(topBar);
         
-        Scene viewScene = new Scene(root, 800, 600);
+        Scene viewScene = new Scene(root, 1200, 800);
         ListView<Text> animalList = new ListView<>();
         FlowPane centerPane = new FlowPane();
         centerPane.setHgap(10);
@@ -176,8 +181,8 @@ public class ViewScene {
 
         HBox bottomBar = new HBox(10);
         bottomBar.setPrefHeight(50);
-        bottomBar.setMinWidth(600);
-        bottomBar.setMaxWidth(600);
+        bottomBar.setMinWidth(800);
+        bottomBar.setMaxWidth(800);
         bottomBar.setAlignment(Pos.CENTER);
         bottomBar.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
 
