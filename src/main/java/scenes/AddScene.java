@@ -1,6 +1,9 @@
 package scenes;
 
+import java.io.File;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import controllers.Navigation;
 import controllers.Queries;
@@ -9,6 +12,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -17,10 +22,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 
 public class AddScene {
 
     public static Scene create(Navigation navigation) {
+        List<File> selectedImages = new ArrayList<>();
+        HBox imagePreviewBox = new HBox(10);
+        imagePreviewBox.setAlignment(Pos.CENTER);
+
         BorderPane root = new BorderPane();
         Scene addScene = new Scene(root, 800, 600);
         HBox bottomBar = new HBox(10);
@@ -48,6 +58,8 @@ public class AddScene {
         TextField speciesInput = new TextField();
         Button addCreature = new Button();
 
+        Button addImagesBtn = new Button("Add Images (max 5)");
+
         domainInput.setPromptText("Domain");
         kingdomInput.setPromptText("Kingdom");
         phylumInput.setPromptText("Phylum");
@@ -66,13 +78,39 @@ public class AddScene {
             tf.setMaxWidth(300);
         }
 
-        inputBox.getChildren().addAll(domainInput, kingdomInput, phylumInput, classInput, orderInput, familyInput, genusInput, speciesInput, addCreature);
+        inputBox.getChildren().addAll(domainInput, kingdomInput, phylumInput, classInput, orderInput, familyInput, genusInput, speciesInput, addImagesBtn, imagePreviewBox, addCreature);
+
+        addImagesBtn.setOnAction(e -> {
+            if (selectedImages.size() >= 5) return;
+
+            FileChooser fc = new FileChooser();
+            fc.setTitle("Select Images");
+            fc.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg")
+            );
+
+            List<File> files = fc.showOpenMultipleDialog(root.getScene().getWindow());
+            if (files == null) return;
+
+            for (File f : files) {
+                if (selectedImages.size() >= 5) break;
+
+                selectedImages.add(f);
+
+                ImageView iv = new ImageView(new Image(f.toURI().toString()));
+                iv.setFitWidth(80);
+                iv.setFitHeight(80);
+                iv.setPreserveRatio(true);
+
+                imagePreviewBox.getChildren().add(iv);
+            }
+        });
 
         addCreature.setOnAction(e -> {
             Queries queries = new Queries();
 
             try {
-                queries.addEntry(
+                int creature_id = queries.addEntry(
                     domainInput.getText(),
                     kingdomInput.getText(),
                     phylumInput.getText(),
@@ -82,6 +120,11 @@ public class AddScene {
                     genusInput.getText(),
                     speciesInput.getText()
                 );
+
+            for (int i = 0; i < selectedImages.size(); i++) {
+                File f = selectedImages.get(i);
+                queries.addUserImage(creature_id, f.getAbsolutePath(), "current_user");
+            }
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }

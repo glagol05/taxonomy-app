@@ -19,5 +19,6 @@ application {
 dependencies {
     implementation "org.postgresql:postgresql:42.7.3"
     implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+    implementation "org.json:json:20251224"
 }
 

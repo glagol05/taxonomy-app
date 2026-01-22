@@ -11,6 +11,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ListView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -20,6 +22,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import models.Creature;
+import models.CreatureImage;
 
 public class ViewScene {
 
@@ -35,7 +38,8 @@ public class ViewScene {
     public void creatureButton(BorderPane root, String rank, String mode) {
         Queries queries = new Queries();
         try {
-            currentRankList = queries.getDistinctValuesFiltered(rank, rankArray, selectedValues, currentRank - 1);
+            currentRankList = queries.getDistinctValuesFiltered(rankArray[currentRank], rankArray, selectedValues, currentRank - 1);
+            currentCreatures = queries.getAllInSpecifics(rank, mode);
         } catch (SQLException e) {
             e.printStackTrace();
             currentRankList = List.of();
@@ -79,12 +83,40 @@ public class ViewScene {
         pane.getChildren().clear();
 
         for(int i = 0; i < currentRankList.size(); i++) {
+
             String item = currentRankList.get(i);
+            String imgPath = "no_image.png";
+            
+            if (currentRank == rankArray.length - 1) {
+                try {
+                    List<Creature> creature = queries.getAllInSpecifics("species", item);
+
+                    if (!creature.isEmpty()) {
+                        int creature_id = creature.get(0).id();
+                        CreatureImage stdImage = queries.getStandardImage(creature_id);
+
+                        if (stdImage != null) {
+                            imgPath = stdImage.path();
+                        }
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            Image buttonImg = new Image(new java.io.File(imgPath).toURI().toString(), 60, 60, true, true);
+            ImageView iv = new ImageView(buttonImg);
+            iv.setFitWidth(60);
+            iv.setFitHeight(60);
+            iv.setPreserveRatio(true);
+            iv.setSmooth(true);
+
             Button newButton = new Button(item);
 
-            newButton.setMinSize(80, 80);
-            newButton.setPrefSize(80, 80);
-            newButton.setMaxSize(80, 80);
+            newButton.setGraphic(iv);
+            newButton.setMinSize(100, 100);
+            newButton.setPrefSize(100, 100);
+            newButton.setMaxSize(100, 100);
 
             newButton.setContentDisplay(ContentDisplay.BOTTOM);
             newButton.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: darkblue;");
@@ -127,7 +159,8 @@ public class ViewScene {
         FlowPane centerPane = new FlowPane();
         centerPane.setHgap(10);
         centerPane.setVgap(10);
-        centerPane.setAlignment(Pos.CENTER);
+        centerPane.setAlignment(Pos.TOP_LEFT);
+        centerPane.setPadding(new Insets(10, 0, 0, 10));
         centerPane.setPrefWrapLength(600);
 
         HBox bottomBar = new HBox(10);
@@ -164,5 +197,4 @@ public class ViewScene {
 
         return viewScene;
     }
-    
 }

@@ -10,6 +10,7 @@ import java.util.List;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import models.Creature;
+import models.CreatureImage;
 
 public class Queries {
 private static final Dotenv dotenv = Dotenv.configure()
@@ -38,11 +39,12 @@ private static final Dotenv dotenv = Dotenv.configure()
         );
     }
 
-    public void addEntry(String domain, String kingdom, String phylum, String clazz, String order, String family, String genus, String species) throws SQLException {
+    public int addEntry(String domain, String kingdom, String phylum, String clazz, String order, String family, String genus, String species) throws SQLException {
         String sql = """
                 INSERT INTO creatures
                 (domain, kingdom, phylum, class_name, order_name, family, genus, species)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                RETURNING id
                 """;
 
                 try (Connection conn = Queries.connect();
@@ -57,8 +59,11 @@ private static final Dotenv dotenv = Dotenv.configure()
                     ps.setString(7, genus);
                     ps.setString(8, species);
 
-                    ps.executeUpdate();
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) return rs.getInt(1);
+                    }
                 }
+                throw new SQLException("Failed to insert creature");
     }
 
     public List<Creature> getAllCreatures() throws SQLException {
@@ -141,6 +146,89 @@ private static final Dotenv dotenv = Dotenv.configure()
             }
         }
 
+        return results;
+    }
+
+    public void addCreatureImage(int creatureId, String imagePath, String caption, boolean isStandard, String source, String attribution, Integer sortOrder) throws SQLException {
+
+        String sql = """
+            INSERT INTO creature_images
+            (creature_id, image_path, caption, sort_order)
+            VALUES (?, ?, ?, ?)
+            """;
+
+        try (Connection conn = connect();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, creatureId);
+            ps.setString(2, imagePath);
+            ps.setString(3, caption);
+            ps.setInt(4, sortOrder);
+
+            ps.executeUpdate();
+        }
+    }
+
+    public List<CreatureImage> getImagesForCreature(int creatureId) throws SQLException {
+        String sql = "SELECT * FROM creature_images WHERE creature_id = ? ORDER BY sort_order";
+
+        List<CreatureImage> results = new ArrayList<>();
+
+        try (Connection conn = connect();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, creatureId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    results.add(new CreatureImage(rs.getInt("id"), rs.getInt("creature_id"), rs.getString("image_path"), rs.getString("caption"), rs.getBoolean("is_standard"), rs.getString("source"), rs.getString("attribution"), rs.getObject("sort_order", Integer.class)));
+
+                }
+            }
+        }
+        return results;
+    }
+
+    public void upsertStandardImage(int creatureId, String imageUrl, String source, String attribution) throws SQLException {
+        String sql = "INSERT INTO creature_standard_image (creature_id, image_url, source, attribution) VALUES (?, ?, ?, ?) ON CONFLICT (creature_id) DO UPDATE SET image_url = EXCLUDED.image_url, source = EXCLUDED.source, attribution = EXCLUDED.attribution";
+        
+        try (Connection conn = connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, creatureId); ps.setString(2, imageUrl); ps.setString(3, source); ps.setString(4, attribution);
+            ps.executeUpdate();
+        }
+    }
+
+    public CreatureImage getStandardImage(int creatureId) throws SQLException {
+        String sql = "SELECT * FROM creature_standard_image WHERE creature_id = ?";
+        
+        try (Connection conn = connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, creatureId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return new CreatureImage(rs.getInt("id"), rs.getInt("creature_id"), rs.getString("image_url"), null, true, rs.getString("source"), rs.getString("attribution"), null);
+            }
+        }
+        return null;
+    }
+
+    public void addUserImage(int creatureId, String imagePath, String uploadedBy) throws SQLException {
+        String sql = "INSERT INTO creature_user_images (creature_id, image_path, uploaded_by) VALUES (?, ?, ?)";
+        
+        try (Connection conn = connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, creatureId); ps.setString(2, imagePath); ps.setString(3, uploadedBy);
+            ps.executeUpdate();
+        }
+    }
+
+    public List<CreatureImage> getUserImages(int creatureId) throws SQLException {
+        String sql = "SELECT * FROM creature_user_images WHERE creature_id = ? ORDER BY uploaded_at";
+        List<CreatureImage> results = new ArrayList<>();
+        
+        try (Connection conn = connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, creatureId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) results.add(new CreatureImage(rs.getInt("id"), rs.getInt("creature_id"), rs.getString("image_url"), null, true, rs.getString("source"), rs.getString("attribution"), null));
+            }
+        }
         return results;
     }
 }
